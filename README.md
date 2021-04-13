@@ -11,3 +11,6 @@ Les codes modifiés par rapport à la version de Josep sont :
 
 
 minmt-train.py 
+
+
+![alt text](https://github.com/DanBerrebbi/transformer_serie/blob/main/schema_serie.jpg)
