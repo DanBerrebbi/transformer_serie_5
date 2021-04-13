@@ -11,3 +11,6 @@ Les codes modifiés par rapport à la version de Josep sont :
 
 
 minmt-train.py 
+
+
+Le script que j'utilise est : 
