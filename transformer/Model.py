@@ -451,6 +451,7 @@ class Decoder(torch.nn.Module):
         tmp1 = self.norm_att_enc_pre(tmp)
         ################################# CROSS ATTN 1 #####################################################
         # ATTN over src words : q are words from the previous layer, k, v are src words
+        print(tmp1.shape, z_pre.shape)
         tmp3 = self.multihead_attn_enc_pre(q=tmp1, k=z_pre, v=z_pre, msk=msk_pre)  # la query reste tmp1 car tmp1 est la variable en sortie du précédent layer
         # ADD
         tmp = tmp3 + tmp
@@ -464,12 +465,12 @@ class Decoder(torch.nn.Module):
         tmp = tmp3 + tmp
 
         # NORM
-        tmp1 = self.norm_att_enc_sim(tmp)
+        #tmp1 = self.norm_att_enc_sim(tmp)
         ################################# CROSS ATTN 3 #####################################################
         # ATTN over sim words : q are sim words, k, v are sim words
-        tmp2 = self.multihead_attn_enc_sim(q=tmp1, k=z_sim, v=z_sim, msk=msk_sim)  # [bs, lt, ed] contains dropout
+        #tmp2 = self.multihead_attn_enc_sim(q=tmp1, k=z_sim, v=z_sim, msk=msk_sim)  # [bs, lt, ed] contains dropout
         # ADD
-        tmp = tmp2 + tmp
+        #tmp = tmp2 + tmp
 
         # NORM
         tmp1 = self.norm_ff(tmp)
@@ -509,11 +510,13 @@ class MultiHead_Attn(torch.nn.Module):
         lk = k.shape[1]  ### sequence length of k vectors (may be length of source/target sentences)
         lv = v.shape[1]  ### sequence length of v vectors (may be length of source/target sentences)
         ed = q.shape[2]
+        assert bs == v.shape[0] == k.shape[0]
         assert self.ed == q.shape[2] == k.shape[2] == v.shape[2]
         assert lk == lv  # when applied in decoder both refer the source-side (lq refers the target-side)
         Q = self.WQ(q).contiguous().view([bs, lq, self.nh, self.qd]).permute(0, 2, 1,
                                                                              3)  # => [bs,lq,nh*qd] => [bs,lq,nh,qd] => [bs,nh,lq,qd]
-        K = self.WK(k).contiguous().view([bs, lk, self.nh, self.kd]).permute(0, 2, 1,
+       
+        K = self.WK(k).contiguous().view([bs, lv, self.nh, self.kd]).permute(0, 2, 1,
                                                                              3)  # => [bs,lk,nh*kd] => [bs,lk,nh,kd] => [bs,nh,lk,kd]
         V = self.WV(v).contiguous().view([bs, lv, self.nh, self.vd]).permute(0, 2, 1,
                                                                              3)  # => [bs,lv,nh*vd] => [bs,lv,nh,vd] => [bs,nh,lv,vd]

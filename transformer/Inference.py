@@ -23,7 +23,8 @@ class Inference():
     self.model = model
     self.src_voc = src_voc
     self.tgt_voc = tgt_voc
-    self.beam_size = oi.beam_size
+    #self.beam_size = oi.beam_size
+    self.beam_size = 1
     self.max_size = oi.max_size
     self.n_best = oi.n_best
     self.alpha = oi.alpha
@@ -38,26 +39,25 @@ class Inference():
 
   def translate(self, testset, output):
     logging.info('Running: inference')
-    print("debut debug dan")
-    print("output : ", output)
+
     if output != '-':
       fh = open(output, 'w')
-      print("on est au bon endroit")
     else:
       fh = sys.stdout
 
     with torch.no_grad():
       self.model.eval()
-      for pos, batch_idxs in testset:
-        if len(batch_idxs) == 2:
-          self.batch_pre = prepare_prefix(batch_idxs[1], self.tgt_voc.idx_pad, self.device)  #pre is [bs, lp]
-        else:
-          self.batch_pre = None
+      for pos, [batch_src, batch_sim, batch_pre] in testset:
+        self.batch_pre = None
 
-        batch_src = batch_idxs[0]
         src, self.msk_src = prepare_source(batch_src, self.src_voc.idx_pad, self.device) #src is [bs, ls] msk_src is [bs,1,ls]
+        sim, self.msk_sim = prepare_source(batch_sim, self.src_voc.idx_pad, self.device)
+        pre, self.msk_pre = prepare_source(batch_pre, self.tgt_voc.idx_pad, self.device)
         ### encode
-        self.z_src = self.model.encode(src, self.msk_src) #[bs,ls,ed]
+        self.z_src = self.model.encode_src(src, self.msk_src) #[bs,ls,ed]
+        self.z_sim = self.model.encode_sim(sim, self.msk_sim, self.z_src, self.msk_src)
+        self.z_pre = self.model.encode_pre(pre, self.msk_pre, self.z_sim, self.msk_sim, self.z_src, self.msk_src)
+
         ### decode step-by-step
         finals = self.traverse_beam()
         ### eoutput
@@ -92,7 +92,7 @@ class Inference():
       ### DECODE ###
       ##############
       msk_tgt = (1 - torch.triu(torch.ones((1, lt, lt), device=self.device), diagonal=1)).bool()
-      y_next = self.model.decode(self.z_src, hyps, self.msk_src, msk_tgt=msk_tgt)[:,-1,:] #[I,lt,Vt] => [I,Vt]
+      y_next = self.model.decode(hyps, msk_tgt, self.z_src, self.msk_src, self.z_sim, self.msk_sim, self.z_pre, self.msk_pre)[:,-1,:] #[I,lt,Vt] => [I,Vt]
 
       hyps, logP = self.expand(y_next, hyps, logP, bs) #both are [bs,1*Vt,lt] OR [bs,K*Vt,lt]
       
@@ -244,6 +244,7 @@ class Inference():
         logging.error('Invalid format option {} in {}'.format(ch,self.format))
         sys.exit()
     return '\t'.join(out)
+
 
 
 
