@@ -54,7 +54,7 @@ cat $setup
 	    fpre_tst=$stovec/clean.Europarl.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.pre
 	    fmod=$dnet/network.checkpoint_00030000.pt ####### A MODIF 
 	    fout=$dnet/$corpus.out_k5_avg_alpha0.7
-	    CUDA_VISIBLE_DEVICES=0 python3 $trans -dnet $dnet -m $fmod -batch_size 10 -beam_size 5 -alpha 0.7 -i_src  $fsrc_tst -i_sim $fsim_tst -i_pre $fpre_tst -o $fout -cuda -log_file $fout.log
+	    CUDA_VISIBLE_DEVICES=0 python3 $trans -dnet $dnet -m $fmod -batch_size 10 -beam_size 5 -alpha 0.7 -i_src  $fsrc_tst -i_sim $fsim_tst -i_pre $fpre_tst -o $fout -cuda -log_file $fout.log &
 	    sort -g $fout | cut -f 2 | python3 $tokenizer -tok_config $data/BPE_config -detok | sacrebleu --force $fref > $fout.bleu
 	    cat $fout.bleu
 	done
