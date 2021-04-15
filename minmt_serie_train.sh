@@ -18,7 +18,6 @@ cat $setup
 
     dir=$josep/minmt_base
     dnet=$PWD/model_serie
-    #rm -r $dnet
 
     if true; then
 	python3 $setup -dnet $dnet -src_voc $dir/enfr.BPE.32k.voc -tgt_voc $dir/enfr.BPE.32k.voc
@@ -26,8 +25,6 @@ cat $setup
 	echo setup ok
 
 mkdir "data_corpus"
-dnet=$PWD/model_serie_true
-
 
 	for corpus in ECB EMEA Europarl GNOME JRC-Acquis KDE4 news-commentary-v14 TED2013 Wikipedia; do
 	    echo $corpus
@@ -72,7 +69,7 @@ dnet=$PWD/model_serie_true
 
   	echo debut du training
 
-	CUDA_VISIBLE_DEVICES=0 python3 $train -dnet $dnet -src_train data_corpus/trn_src  -sim_train data_corpus/trn_sim  -pre_train $data_corpus/trn_pre  -tgt_train $data_corpus/trn_tgt  -src_valid $data_corpus/val_src  -sim_valid $fdata_corpus/val_sim -pre_valid $data_corpus/val_pre -tgt_valid $data_corpus/val_tgt -max_steps 450000 -loss KLDiv -cuda -log_file $dnet/log &
+	CUDA_VISIBLE_DEVICES=0 python3 $train -dnet $dnet -src_train data_corpus/trn_src  -sim_train data_corpus/trn_sim  -pre_train $data_corpus/trn_pre  -tgt_train $data_corpus/trn_tgt  -src_valid $data_corpus/val_src  -sim_valid $fdata_corpus/val_sim  -pre_valid $data_corpus/val_pre  -tgt_valid $data_corpus/val_tgt -max_steps 450000 -loss KLDiv -cuda -log_file $dnet/log &
 
 		echo fin du training
 
