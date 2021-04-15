@@ -20,7 +20,7 @@ cat $setup
     dnet=$PWD/model_serie
     #rm -r $dnet
 
-    if false; then
+    if true; then
 	python3 $setup -dnet $dnet -src_voc $dir/enfr.BPE.32k.voc -tgt_voc $dir/enfr.BPE.32k.voc
 
 	echo setup ok
