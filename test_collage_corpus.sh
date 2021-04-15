@@ -11,8 +11,9 @@ data=$josep/data
 stovec=$josep/stovec
 
 dir=$josep/minmt_base
+mkdir data_corpus
+dir_dan = $PWD/data_corpus
 dnet=$PWD/model_serie_true
-
 
 
 	for corpus in ECB EMEA ; do
@@ -23,10 +24,10 @@ dnet=$PWD/model_serie_true
 	    fsim=$stovec/clean.$corpus.en-fr.en.trn.bpe.vec.max_sim0.5_k5_n0_t0.8.sim
 	    fpre=$stovec/clean.$corpus.en-fr.en.trn.bpe.vec.max_sim0.5_k5_n0_t0.8.pre
 
-	    cat $fsrc >> $dir/trn_src
-	    cat $ftgt >> $dir/trn_tgt
-	    cat $fsim >> $dir/trn_sim
-	    cat $fpre >> $dir/trn_pre
+	    cat $fsrc >> $dir_dan/trn_src
+	    cat $ftgt >> $dir_dan/trn_tgt
+	    cat $fsim >> $dir_dan/trn_sim
+	    cat $fpre >> $dir_dan/trn_pre
    echo ok
 
   done
