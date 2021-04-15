@@ -28,3 +28,5 @@ dnet=$PWD/model_serie_true
 	    cat $fsim >> $dir/trn_sim
 	    cat $fpre >> $dir/trn_pre
    echo ok
+
+  done
