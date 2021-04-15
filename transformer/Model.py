@@ -510,7 +510,10 @@ class MultiHead_Attn(torch.nn.Module):
         lk = k.shape[1]  ### sequence length of k vectors (may be length of source/target sentences)
         lv = v.shape[1]  ### sequence length of v vectors (may be length of source/target sentences)
         ed = q.shape[2]
-        assert bs == v.shape[0] == k.shape[0]
+        if not bs == v.shape[0] == k.shape[0] :
+            K = bs // v.shape[0]
+            v = torch.repeat_interleave(v, K, dim = 0)
+            k = torch.repeat_interleave(k, K, dim = 0)
         assert self.ed == q.shape[2] == k.shape[2] == v.shape[2]
         assert lk == lv  # when applied in decoder both refer the source-side (lq refers the target-side)
         Q = self.WQ(q).contiguous().view([bs, lq, self.nh, self.qd]).permute(0, 2, 1,
