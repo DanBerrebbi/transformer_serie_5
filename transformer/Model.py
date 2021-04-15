@@ -528,10 +528,9 @@ class MultiHead_Attn(torch.nn.Module):
         s = torch.matmul(Q, K.transpose(2,
                                         3))  # [bs,nh,lq,qd] x [bs,nh,kd,lk] = [bs,nh,lq,lk] # thanks to qd==kd #in decoder lq are target words and lk are source words
         if msk is not None:
-            print(40*"##")
-            print(msk.shape)
-            print(s.shape)
-            print(40 * "##")
+            if msk.shape[0] != bs :
+                K = bs // msk.shape[0]
+                msk = torch.repeat_interleave(msk, K, dim = 0)
             s = s.masked_fill(msk == 0, float('-inf'))  # score=-Inf to masked tokens
         w = torch.nn.functional.softmax(s, dim=-1)  # [bs,nh,lq,lk] (these are the attention weights)
         w = self.dropout(w)  # [bs,nh,lq,lk]
