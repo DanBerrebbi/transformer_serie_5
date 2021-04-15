@@ -11,8 +11,8 @@ data=$josep/data
 stovec=$josep/stovec
 
 dir=$josep/minmt_base
-mkdir data_corpus
-dir_dan = $PWD/data_corpus
+
+dir_dan = /data_corpus
 dnet=$PWD/model_serie_true
 
 
