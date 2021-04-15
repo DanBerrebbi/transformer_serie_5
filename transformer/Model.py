@@ -512,7 +512,7 @@ class MultiHead_Attn(torch.nn.Module):
         ed = q.shape[2]
         if not bs == v.shape[0] == k.shape[0] :
             K = bs // v.shape[0]
-            v = torch.repeat_interleave(v, K, dim = 0)
+            v = torch.repeat_interleave(v, K, dim = 0)    # je peux faire un repeat_interleaves car c'est le même vecteur pre pour les K options du beam search
             k = torch.repeat_interleave(k, K, dim = 0)
         assert self.ed == q.shape[2] == k.shape[2] == v.shape[2]
         assert lk == lv  # when applied in decoder both refer the source-side (lq refers the target-side)
@@ -528,6 +528,10 @@ class MultiHead_Attn(torch.nn.Module):
         s = torch.matmul(Q, K.transpose(2,
                                         3))  # [bs,nh,lq,qd] x [bs,nh,kd,lk] = [bs,nh,lq,lk] # thanks to qd==kd #in decoder lq are target words and lk are source words
         if msk is not None:
+            print(40*"##")
+            print(msk.shape)
+            print(s.shape)
+            print(40 * "##")
             s = s.masked_fill(msk == 0, float('-inf'))  # score=-Inf to masked tokens
         w = torch.nn.functional.softmax(s, dim=-1)  # [bs,nh,lq,lk] (these are the attention weights)
         w = self.dropout(w)  # [bs,nh,lq,lk]
