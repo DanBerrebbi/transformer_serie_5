@@ -76,3 +76,4 @@ dnet=$PWD/model_serie_true
 
 		echo fin du training
 
+fi
