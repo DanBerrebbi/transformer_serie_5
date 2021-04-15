@@ -5,7 +5,7 @@ josep=/nfs/RESEARCH/crego/projects/PrimingNMT-2/
 
 vocab=$PWD/minmt-vocab.py
 setup=$PWD/minmt-setup.py
-train=$PWDT/minmt-train.py      # j'ai modifié certains fichiers par rapport au Git
+train=$PWD/minmt-train.py      # j'ai modifié certains fichiers par rapport au Git
 avrge=$PWD/minmt-average.py
 trans=$PWD/minmt-translate.py
 
