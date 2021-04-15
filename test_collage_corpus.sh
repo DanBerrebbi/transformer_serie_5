@@ -16,7 +16,7 @@ dir_dan = /data_corpus
 dnet=$PWD/model_serie_true
 
 
-	for corpus in ECB EMEA ; do
+	for corpus in ECB ; do
 	    echo $corpus
 
 	    fsrc=$stovec/clean.$corpus.en-fr.en.trn.bpe.vec.max_sim0.5_k5_n0_t0.8.src
