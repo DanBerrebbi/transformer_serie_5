@@ -24,7 +24,7 @@ dnet=$PWD/model_serie_true
 	    fsim=$stovec/clean.$corpus.en-fr.en.trn.bpe.vec.max_sim0.5_k5_n0_t0.8.sim
 	    fpre=$stovec/clean.$corpus.en-fr.en.trn.bpe.vec.max_sim0.5_k5_n0_t0.8.pre
 
-	    cat $fsrc >> $dir_dan/trn_src
+	    cat $fsrc >> $dir_dan/trn_src.en
 	    cat $ftgt >> $dir_dan/trn_tgt
 	    cat $fsim >> $dir_dan/trn_sim
 	    cat $fpre >> $dir_dan/trn_pre
