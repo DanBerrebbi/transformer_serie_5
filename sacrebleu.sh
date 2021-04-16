@@ -10,7 +10,7 @@ tokenizer=$josep/MiNMT/tools/tokenizer.py
 
 # jointure fichiers de reference :
 for corpus in  ECB EMEA Europarl ; do
-  cat $data/clean.Europarl.en-fr.fr.tst > model_checkpoint/reference
+  cat $data/clean.$corpus.en-fr.fr.tst > model_checkpoint/reference
 
 done
 
