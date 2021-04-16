@@ -4,7 +4,6 @@
 dnet=$PWD/model_checkpoint
 josep=/nfs/RESEARCH/crego/projects/PrimingNMT-2/
 data=$josep/data
-fref=$data/clean.$corpus.en-fr.fr.tst
 
 input = $dnet/Europarl.out_k5_avg_alpha0.7    # il s'appelle Europarl mais ya les 3 premiers corpus dedans
 fref = $dnet/reference
