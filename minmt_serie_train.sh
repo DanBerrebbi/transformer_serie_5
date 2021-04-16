@@ -26,7 +26,7 @@ cat $setup
 
 mkdir "data_corpus"
 
-	for corpus in ECB EMEA ; do
+	for corpus in ECB EMEA Europarl ; do
 	    echo $corpus
       echo train ...
 	    fsrc=$stovec/clean.$corpus.en-fr.en.trn.bpe.vec.max_sim0.5_k5_n0_t0.8.src
@@ -69,7 +69,7 @@ mkdir "data_corpus"
 
   	echo debut du training
 
-	CUDA_VISIBLE_DEVICES=0 python3 $train -dnet $dnet -src_train data_corpus/trn_src  -sim_train data_corpus/trn_sim  -pre_train data_corpus/trn_pre  -tgt_train data_corpus/trn_tgt  -src_valid data_corpus/val_src  -sim_valid data_corpus/val_sim  -pre_valid data_corpus/val_pre  -tgt_valid data_corpus/val_tgt -max_steps 450000 -loss KLDiv -cuda -log_file $dnet/log &
+	CUDA_VISIBLE_DEVICES=0 python3 $train -dnet $dnet -src_train data_corpus/trn_src  -sim_train data_corpus/trn_sim  -pre_train data_corpus/trn_pre  -tgt_train data_corpus/trn_tgt  -src_valid data_corpus/val_src  -sim_valid data_corpus/val_sim  -pre_valid data_corpus/val_pre  -tgt_valid data_corpus/val_tgt -max_steps 450000 -loss KLDiv -cuda -log_file $dnet/log
 
 		echo fin du training
 
