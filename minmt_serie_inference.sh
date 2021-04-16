@@ -14,17 +14,21 @@ data=$josep/data
 stovec=$josep/stovec
 
 dir=$josep/minmt_base
-#dnet=$PWD/model_serie
-dnet=$PWD/model_checkpoint
+dnet=$PWD/model_serie
 
 
-	for corpus in ECB EMEA Europarl ; do
+rm data_corpus/tst_src
+rm data_corpus/tst_pre
+rm data_corpus/tst_sim
+rm data_corpus/tst_tgt
+
+	for corpus in GNOME JRC-Acquis KDE4 news-commentary-v14 TED2013 Wikipedia ; do
 	    echo $corpus
 	    echo test ...
-	    fsrc=$stovec/clean.Europarl.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.src
-	    ftgt=$stovec/clean.Europarl.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.tgt
-	    fsim=$stovec/clean.Europarl.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.sim
-	    fpre=$stovec/clean.Europarl.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.pre
+	    fsrc=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.src
+	    ftgt=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.tgt
+	    fsim=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.sim
+	    fpre=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.pre
 	    cat $fsrc >> data_corpus/tst_src
 	    cat $ftgt >> data_corpus/tst_tgt
 	    cat $fsim >> data_corpus/tst_sim
@@ -39,7 +43,7 @@ echo debut de l inference
 
 
 fmod=$dnet/network.checkpoint_00005000.pt ####### A MODIF
-fout=$dnet/$corpus.out_k5_avg_alpha0.7
+fout=$dnet/CORPUS_TOTAL.out_k5_avg_alpha0.7
 CUDA_VISIBLE_DEVICES=0 python3 $trans -dnet $dnet -m $fmod -batch_size 10 -beam_size 5 -alpha 0.7 -i_src data_corpus/tst_src -i_sim data_corpus/tst_sim -i_pre data_corpus/tst_pre -o $fout -cuda -log_file $fout.log
 
 echo fin de l inference
