@@ -26,7 +26,7 @@ cat $setup
 
 mkdir "data_corpus"
 
-	for corpus in ECB EMEA Europarl ; do
+	for corpus in ECB EMEA Europarl GNOME JRC-Acquis; do
 	    echo $corpus
       echo train ...
 	    fsrc=$stovec/clean.$corpus.en-fr.en.trn.bpe.vec.max_sim0.5_k5_n0_t0.8.src
