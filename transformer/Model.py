@@ -415,16 +415,6 @@ class Encoder_pre(torch.nn.Module):
 ##############################################################################################################
 class Decoder(torch.nn.Module):
     def __init__(self, ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout):
-        
-
-        ###################################################
-        #### debug dan
-        ###################################################
-       # print("dimension des embs : ", emb_dim)
-
-        ####################################################
-        ####   end debug dan 
-        ####################################################
 
 
         super(Decoder, self).__init__()
@@ -451,7 +441,6 @@ class Decoder(torch.nn.Module):
         tmp1 = self.norm_att_enc_pre(tmp)
         ################################# CROSS ATTN 1 #####################################################
         # ATTN over src words : q are words from the previous layer, k, v are src words
-        print(tmp1.shape, z_pre.shape)
         tmp3 = self.multihead_attn_enc_pre(q=tmp1, k=z_pre, v=z_pre, msk=msk_pre)  # la query reste tmp1 car tmp1 est la variable en sortie du précédent layer
         # ADD
         tmp = tmp3 + tmp
