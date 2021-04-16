@@ -5,7 +5,7 @@ dnet=$PWD/model_checkpoint
 josep=/nfs/RESEARCH/crego/projects/PrimingNMT-2/
 data=$josep/data
 
-input = model_checkpoint/Europarl.out_k5_avg_alpha0.7    # il s'appelle Europarl mais ya les 3 premiers corpus dedans
+input = /model_checkpoint/Europarl.out_k5_avg_alpha0.7    # il s'appelle Europarl mais ya les 3 premiers corpus dedans
 
 # jointure fichiers de reference :
 for corpus in  ECB EMEA Europarl ; do
