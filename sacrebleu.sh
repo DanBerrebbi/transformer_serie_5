@@ -15,4 +15,4 @@ for corpus in  ECB EMEA Europarl ; do
 done
 
 
-cat model_checkpoint/Europarl.out_k5_avg_alpha0.7 >> python3 $tokenizer -tok_config $data/BPE_config -detok | sacrebleu --force model_checkpoint/reference > model_checkpoint/Europarl.out_k5_avg_alpha0.7.bleu
+model_checkpoint/Europarl.out_k5_avg_alpha0.7 >> python3 $tokenizer -tok_config $data/BPE_config -detok | sacrebleu --force model_checkpoint/reference > model_checkpoint/Europarl.out_k5_avg_alpha0.7.bleu
