@@ -10,11 +10,10 @@ tokenizer=$josep/MiNMT/tools/tokenizer.py
 
 # jointure fichiers de reference :
 for corpus in  ECB EMEA Europarl ; do
-  cat $data/clean.Europarl.en-fr.fr.tst >> model_checkpoint/reference
+  cat $data/clean.Europarl.en-fr.fr.tst > model_checkpoint/reference
 
 done
 
-txt = $PWD/txt
 #cp model_checkpoint/Europarl.out_k5_avg_alpha0.7 Europarl.out_k5_avg_alpha0.7.trans
 # model_checkpoint/Europarl.out_k5_avg_alpha0.7
-$txt > python3 $tokenizer -tok_config $data/BPE_config -detok | sacrebleu --force model_checkpoint/reference > model_checkpoint/Europarl.out_k5_avg_alpha0.7.bleu
+cat model_checkpoint/Europarl.out_k5_avg_alpha0.7 | python3 $tokenizer -tok_config $data/BPE_config -detok | sacrebleu --force model_checkpoint/reference > model_checkpoint/Europarl.out_k5_avg_alpha0.7.bleu
