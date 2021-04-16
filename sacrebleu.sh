@@ -4,6 +4,7 @@
 dnet=$PWD/model_checkpoint
 josep=/nfs/RESEARCH/crego/projects/PrimingNMT-2/
 data=$josep/data
+tokenizer=$josep/MiNMT/tools/tokenizer.py
 
    # il s'appelle Europarl mais ya les 3 premiers corpus dedans
 
