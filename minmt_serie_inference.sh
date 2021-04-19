@@ -35,6 +35,3 @@ fmod=$dnet/network.checkpoint_00450000.pt ####### A MODIF
 
   done
 
-echo debut de l inference
-
-echo fin de l inference
