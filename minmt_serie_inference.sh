@@ -23,7 +23,7 @@ rm data_corpus/tst_sim
 rm data_corpus/tst_tgt
 fmod=$dnet/network.checkpoint_00450000.pt ####### A MODIF
 
-	for corpus in GNOME JRC-Acquis KDE4 news-commentary-v14 TED2013 Wikipedia ; do
+	for corpus in ECB EMEA ; do
 	    echo $corpus
 	    echo test ...
 	    fsrc=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.src
