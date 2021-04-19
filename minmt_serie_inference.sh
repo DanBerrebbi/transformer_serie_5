@@ -17,13 +17,9 @@ dir=$josep/minmt_base
 dnet=$PWD/model_serie
 
 
-rm data_corpus/tst_src
-rm data_corpus/tst_pre
-rm data_corpus/tst_sim
-rm data_corpus/tst_tgt
 fmod=$dnet/network.checkpoint_00450000.pt ####### A MODIF
 
-	for corpus in ECB EMEA ; do
+	for corpus in Europarl; do
 	    echo $corpus
 	    echo test ...
 	    fsrc=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.src
