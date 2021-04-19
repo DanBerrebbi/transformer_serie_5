@@ -21,6 +21,7 @@ rm data_corpus/tst_src
 rm data_corpus/tst_pre
 rm data_corpus/tst_sim
 rm data_corpus/tst_tgt
+fmod=$dnet/network.checkpoint_00450000.pt ####### A MODIF
 
 	for corpus in GNOME JRC-Acquis KDE4 news-commentary-v14 TED2013 Wikipedia ; do
 	    echo $corpus
@@ -29,7 +30,6 @@ rm data_corpus/tst_tgt
 	    ftgt=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.tgt
 	    fsim=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.sim
 	    fpre=$stovec/clean.$corpus.en-fr.en.tst.bpe.vec.sim0.5_k5_n0_t0.8.pre
-	    fmod=$dnet/network.checkpoint_00450000.pt ####### A MODIF
       fout=$dnet/$corpus.out_k5_alpha0.7
       CUDA_VISIBLE_DEVICES=0 python3 $trans -dnet $dnet -m $fmod -batch_size 10 -beam_size 5 -alpha 0.7 -i_src data_corpus/tst_src -i_sim data_corpus/tst_sim -i_pre data_corpus/tst_pre -o $fout -cuda -log_file $fout.log &
 
