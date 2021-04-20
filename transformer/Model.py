@@ -149,43 +149,43 @@ class Encoder_Decoder(torch.nn.Module):
         # tgt is [bs,lt]
         # msk_src is [bs,1,ls] (False where <pad> True otherwise)
         # mst_tgt is [bs,lt,lt]
-        ### encoder src #####
-        src = self.add_pos_enc(self.src_emb(src))  # [bs,ls,ed]
-        z_src = self.stacked_encoder_src(src, msk_src)  # [bs,ls,ed]
         ### encoder sim #####
         sim = self.add_pos_enc(self.sim_emb(sim))  # [bs,ls,ed]
-        z_sim = self.stacked_encoder_sim(sim, msk_sim, z_src, msk_src)  # [bs,ls,ed]
+        z_sim = self.stacked_encoder_sim(sim, msk_sim)  # [bs,ls,ed]
+        ### encoder sim #####
+        src = self.add_pos_enc(self.src_emb(src))  # [bs,ls,ed]
+        z_src = self.stacked_encoder_src(src, msk_src, z_sim, msk_sim)  # [bs,ls,ed]
         ### encoder pre #####
         pre = self.add_pos_enc(self.pre_emb(pre))  # [bs,ls,ed]
-        z_pre = self.stacked_encoder_pre(pre, msk_pre, z_sim, msk_sim, z_src, msk_src)  # [bs,ls,ed]
+        z_pre = self.stacked_encoder_pre(pre, msk_pre, z_sim, msk_sim)  # [bs,ls,ed]
         ### decoder #####
         tgt = self.add_pos_enc(self.tgt_emb(tgt))  # [bs,lt,ed]
-        z_tgt = self.stacked_decoder(tgt, msk_tgt, z_src, msk_src, z_sim, msk_sim, z_pre, msk_pre)  # [bs,lt,ed]
+        z_tgt = self.stacked_decoder(tgt, msk_tgt, z_src, msk_src, z_pre, msk_pre)  # [bs,lt,ed]
         ### generator ###
         y = self.generator(z_tgt)  # [bs, lt, Vt]
         return y  ### returns logits (for learning)
 
-    def encode_src(self, src, msk_src):               # je trouve la fonction encode et la fonction decode redondante avec forward
+    def encode_src(self, src, msk_src, z_sim, msk_sim):               # je trouve la fonction encode et la fonction decode redondante avec forward
         src = self.add_pos_enc(self.src_emb(src))  # [bs,ls,ed]
-        z_src = self.stacked_encoder_src(src, msk_src)  # [bs,ls,ed]
+        z_src = self.stacked_encoder_src(src, msk_src, z_sim, msk_sim)  # [bs,ls,ed]
         return z_src
 
-    def encode_sim(self, sim, msk_sim, z_src, msk_src):               # je trouve la fonction encode et la fonction decode redondante avec forward
+    def encode_sim(self, sim, msk_sim):               # je trouve la fonction encode et la fonction decode redondante avec forward
         sim = self.add_pos_enc(self.sim_emb(sim))  # [bs,ls,ed]
-        z_sim = self.stacked_encoder_sim(sim, msk_sim, z_src, msk_src)  # [bs,ls,ed]
+        z_sim = self.stacked_encoder_sim(sim, msk_sim)  # [bs,ls,ed]
         return z_sim
 
-    def encode_pre(self, pre, msk_pre, z_sim, msk_sim, z_src, msk_src):               # je trouve la fonction encode et la fonction decode redondante avec forward
+    def encode_pre(self, pre, msk_pre, z_sim, msk_sim):               # je trouve la fonction encode et la fonction decode redondante avec forward
         pre = self.add_pos_enc(self.pre_emb(pre))  # [bs,ls,ed]
-        z_pre = self.stacked_encoder_pre(pre, msk_pre, z_sim, msk_sim, z_src, msk_src)  # [bs,ls,ed]
+        z_pre = self.stacked_encoder_pre(pre, msk_pre, z_sim, msk_sim)  # [bs,ls,ed]
         return z_pre
 
-    def decode(self, tgt, msk_tgt, z_src, msk_src, z_sim, msk_sim, z_pre, msk_pre):
+    def decode(self, tgt, msk_tgt, z_src, msk_src, z_pre, msk_pre):
         assert z_src.shape[0] == tgt.shape[0]  ### src/tgt batch_sizes must be equal
         # z_src are the embeddings of the source words (encoder) [bs, sl, ed]
         # tgt is the history (words already generated) for current step [bs, lt]
         tgt = self.add_pos_enc(self.tgt_emb(tgt))  # [bs,lt,ed]
-        z_tgt = self.stacked_decoder(tgt, msk_tgt, z_src, msk_src, z_sim, msk_sim, z_pre, msk_pre)  # [bs,lt,ed]
+        z_tgt = self.stacked_decoder(tgt, msk_tgt, z_src, msk_src, z_pre, msk_pre)  # [bs,lt,ed]
         y = self.generator(z_tgt)  # [bs, lt, Vt]
         y = torch.nn.functional.log_softmax(y, dim=-1)
         return y  ### returns log_probs (for inference)
@@ -237,9 +237,9 @@ class Stacked_Encoder_src(torch.nn.Module):
             [Encoder_src(ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout) for _ in range(n_layers)])
         self.norm = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, src, msk_src):
+    def forward(self, src, msk_src, z_sim, msk_sim):
         for i, encoderlayer in enumerate(self.encoderlayers):
-            src = encoderlayer(src, msk_src)  # [bs, ls, ed]
+            src = encoderlayer(src, msk_src, z_sim, msk_sim)  # [bs, ls, ed]
         return self.norm(src)
 
 
@@ -253,9 +253,9 @@ class Stacked_Encoder_sim(torch.nn.Module):
             [Encoder_sim(ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout) for _ in range(n_layers)])
         self.norm = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, sim, msk_sim, z_src, msk_src):
+    def forward(self, sim, msk_sim):
         for i, encoderlayer in enumerate(self.encoderlayers):
-            sim = encoderlayer(sim, msk_sim, z_src, msk_src)  # [bs, ls, ed]
+            sim = encoderlayer(sim, msk_sim)  # [bs, ls, ed]
         return self.norm(sim)
 
 
@@ -269,9 +269,9 @@ class Stacked_Encoder_pre(torch.nn.Module):
             [Encoder_pre(ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout) for _ in range(n_layers)])
         self.norm = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, pre, msk_pre, z_sim, msk_sim, z_src, msk_src):
+    def forward(self, pre, msk_pre, z_sim, msk_sim):
         for i, encoderlayer in enumerate(self.encoderlayers):
-            pre = encoderlayer(pre, msk_pre, z_sim, msk_sim, z_src, msk_src)  # [bs, ls, ed]
+            pre = encoderlayer(pre, msk_pre, z_sim, msk_sim)  # [bs, ls, ed]
         return self.norm(pre)
 
 
@@ -285,31 +285,40 @@ class Stacked_Decoder(torch.nn.Module):
             [Decoder(ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout) for _ in range(n_layers)])
         self.norm = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, tgt, msk_tgt, z_src, msk_src, z_sim, msk_sim, z_pre, msk_pre):
+    def forward(self, tgt, msk_tgt, z_src, msk_src, z_pre, msk_pre):
         for i, decoderlayer in enumerate(self.decoderlayers):
             #tgt = decoderlayer(tgt, msk_tgt, z_src, msk_src, z_sim, msk_sim, z_pre, msk_pre)
-            tgt = decoderlayer(z_src, z_sim, z_pre, tgt, msk_src, msk_sim, msk_pre, msk_tgt)
+            tgt = decoderlayer(z_src, z_pre, tgt, msk_src, msk_pre, msk_tgt)
         return self.norm(tgt)
 
 
 ##############################################################################################################
-### Encoder SRC -> OK ##################################################################################################
+### Encoder SRC -> BUEN ##################################################################################################
 ##############################################################################################################
 class Encoder_src(torch.nn.Module):
     def __init__(self, ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout):
         super(Encoder_src, self).__init__()
-        self.multihead_attn = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
+        self.multihead_attn_self = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
+        self.multihead_attn_enc_sim = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
         self.feedforward = FeedForward(emb_dim, ff_dim, dropout)
-        self.norm_att = torch.nn.LayerNorm(emb_dim, eps=1e-6)
+        self.norm_att_self = torch.nn.LayerNorm(emb_dim, eps=1e-6)
+        self.norm_att_enc_sim = torch.nn.LayerNorm(emb_dim, eps=1e-6)
         self.norm_ff = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, src, msk_src):
+    def forward(self, src, msk_src, z_sim, msk_sim):
         # NORM
-        tmp1 = self.norm_att(src)
+        tmp1 = self.norm_att_self(src)
         # ATTN over source words
-        tmp2 = self.multihead_attn(q=tmp1, k=tmp1, v=tmp1, msk=msk_src)  # [bs, ls, ed] contains dropout
+        tmp2 = self.multihead_attn_self(q=tmp1, k=tmp1, v=tmp1, msk=msk_src)  # [bs, ls, ed] contains dropout
         # ADD
         tmp = tmp2 + src
+
+        # NORM
+        tmp1 = self.norm_att_enc_sim(tmp)
+        # ATTN over sim words : q are sim words, k, v are src words
+        tmp2 = self.multihead_attn_enc_sim(q=tmp1, k=z_sim, v=z_sim, msk=msk_sim)  # [bs, lt, ed] contains dropout
+        # ADD
+        tmp = tmp2 + tmp
 
         # NORM
         tmp1 = self.norm_ff(tmp)
@@ -322,19 +331,17 @@ class Encoder_src(torch.nn.Module):
 
 
 ##############################################################################################################
-### Encoder SIM -> OK ##################################################################################################
+### Encoder SIM -> BUEN ##################################################################################################
 ##############################################################################################################
 class Encoder_sim(torch.nn.Module):
     def __init__(self, ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout):
         super(Encoder_sim, self).__init__()
         self.multihead_attn_self = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
-        self.multihead_attn_enc_src = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
         self.feedforward = FeedForward(emb_dim, ff_dim, dropout)
         self.norm_att_self = torch.nn.LayerNorm(emb_dim, eps=1e-6)
-        self.norm_att_enc_src = torch.nn.LayerNorm(emb_dim, eps=1e-6)
         self.norm_ff = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, sim, msk_sim, z_src, msk_src):
+    def forward(self, sim, msk_sim):
         # NORM
         tmp1 = self.norm_att_self(sim)
         # ATTN over source words
@@ -343,15 +350,7 @@ class Encoder_sim(torch.nn.Module):
         tmp = tmp2 + sim
 
         # NORM
-        tmp1 = self.norm_att_enc_src(tmp)
-        # ATTN over src words : q are sim words, k, v are src words
-        tmp2 = self.multihead_attn_enc_src(q=tmp1, k=z_src, v=z_src, msk=msk_src)  # [bs, lt, ed] contains dropout
-        # ADD
-        tmp = tmp2 + tmp
-
-        # NORM
         tmp1 = self.norm_ff(tmp)
-
         # FF
         tmp2 = self.feedforward(tmp1)  # [bs, ls, ed] contains dropout
         # ADD
@@ -361,21 +360,19 @@ class Encoder_sim(torch.nn.Module):
 
 
 ##############################################################################################################
-### Encoder PRE -> OK ##################################################################################################
+### Encoder PRE ->  BUEN ##################################################################################################
 ##############################################################################################################
 class Encoder_pre(torch.nn.Module):
     def __init__(self, ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout):
         super(Encoder_pre, self).__init__()
         self.multihead_attn_self = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
         self.multihead_attn_enc_sim = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
-        self.multihead_attn_enc_src = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
         self.feedforward = FeedForward(emb_dim, ff_dim, dropout)
         self.norm_att_self = torch.nn.LayerNorm(emb_dim, eps=1e-6)
-        self.norm_att_enc_src = torch.nn.LayerNorm(emb_dim, eps=1e-6)
         self.norm_att_enc_sim = torch.nn.LayerNorm(emb_dim, eps=1e-6)
         self.norm_ff = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, pre, msk_pre, z_sim, msk_sim, z_src, msk_src):
+    def forward(self, pre, msk_pre, z_sim, msk_sim):
         # NORM
         tmp1 = self.norm_att_self(pre)
         # ATTN over source words
@@ -390,14 +387,6 @@ class Encoder_pre(torch.nn.Module):
         tmp2 = self.multihead_attn_enc_sim(q=tmp1, k=z_sim, v=z_sim, msk=msk_sim)  # [bs, lt, ed] contains dropout
         # ADD
         tmp = tmp2 + tmp
-
-        # NORM
-        tmp1 = self.norm_att_enc_src(tmp)
-        ################################# CROSS ATTN 2 #####################################################
-        # ATTN over src words : q are words from the previous layer, k, v are src words
-        tmp3 = self.multihead_attn_enc_src(q=tmp1, k=z_src, v=z_src, msk=msk_src)  # la query reste tmp1 car tmp1 est la variable en sortie du précédent layer
-        # ADD
-        tmp = tmp3 + tmp
 
         # NORM
         tmp1 = self.norm_ff(tmp)
@@ -416,20 +405,17 @@ class Encoder_pre(torch.nn.Module):
 class Decoder(torch.nn.Module):
     def __init__(self, ff_dim, n_heads, emb_dim, qk_dim, v_dim, dropout):
 
-
         super(Decoder, self).__init__()
         self.multihead_attn_self = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
         self.multihead_attn_enc_src = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
-        self.multihead_attn_enc_sim = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
         self.multihead_attn_enc_pre = MultiHead_Attn(n_heads, emb_dim, qk_dim, v_dim, dropout)
         self.feedforward = FeedForward(emb_dim, ff_dim, dropout)
         self.norm_att_self = torch.nn.LayerNorm(emb_dim, eps=1e-6)
         self.norm_att_enc_src = torch.nn.LayerNorm(emb_dim, eps=1e-6)
-        self.norm_att_enc_sim = torch.nn.LayerNorm(emb_dim, eps=1e-6)
         self.norm_att_enc_pre = torch.nn.LayerNorm(emb_dim, eps=1e-6)
         self.norm_ff = torch.nn.LayerNorm(emb_dim, eps=1e-6)
 
-    def forward(self, z_src, z_sim, z_pre, tgt, msk_src, msk_sim, msk_pre, msk_tgt):
+    def forward(self, z_src, z_pre, tgt, msk_src, msk_pre, msk_tgt):
         # NORM
         tmp1 = self.norm_att_self(tgt)
         # ATTN over tgt (previous) words : q, k, v are tgt words
@@ -439,7 +425,7 @@ class Decoder(torch.nn.Module):
 
         # NORM
         tmp1 = self.norm_att_enc_pre(tmp)
-        ################################# CROSS ATTN 1 #####################################################
+        ################################# CROSS ATTN 1  #####################################################
         # ATTN over src words : q are words from the previous layer, k, v are src words
         tmp3 = self.multihead_attn_enc_pre(q=tmp1, k=z_pre, v=z_pre, msk=msk_pre)  # la query reste tmp1 car tmp1 est la variable en sortie du précédent layer
         # ADD
@@ -454,20 +440,14 @@ class Decoder(torch.nn.Module):
         tmp = tmp3 + tmp
 
         # NORM
-        #tmp1 = self.norm_att_enc_sim(tmp)
-        ################################# CROSS ATTN 3 #####################################################
-        # ATTN over sim words : q are sim words, k, v are sim words
-        #tmp2 = self.multihead_attn_enc_sim(q=tmp1, k=z_sim, v=z_sim, msk=msk_sim)  # [bs, lt, ed] contains dropout
-        # ADD
-        #tmp = tmp2 + tmp
-
-        # NORM
         tmp1 = self.norm_ff(tmp)
         # FF
         tmp2 = self.feedforward(tmp1)  # [bs, ls, ed] contains dropout
         # ADD
         z = tmp2 + tmp
         return z
+
+
 
 
 ##############################################################################################################
