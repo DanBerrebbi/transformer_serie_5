@@ -47,4 +47,4 @@ mkdir "data_corpus"
 
    echo corpus suivant :
 
-fi
+done
