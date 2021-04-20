@@ -198,8 +198,8 @@ class Dataset():
       ####################
       ### yield batchs ###
       ####################
+      idx_batchs = [i for i in range(len(batchs))]
       if self.shuffle:
-        idx_batchs = [i for i in range(len(batchs))]
         np.random.shuffle(idx_batchs)
         logging.debug('Shuffled {} batchs'.format(len(idx_batchs)))
       for i in idx_batchs:
