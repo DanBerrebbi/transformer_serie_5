@@ -94,7 +94,7 @@ class Batch():
 ### Dataset ##################################################################################################
 ##############################################################################################################
 class Dataset():
-  def __init__(self, vocs, files, shard_size=500000, batch_size=4096, batch_type='tokens', max_length=100):    
+  def __init__(self, vocs, files, shard_size=500000, batch_size=4096, batch_type='tokens', max_length=100, shuffle = True):
     super(Dataset, self).__init__()
     assert len(vocs) == len(files), 'Dataset must be initialized with same number of vocs and files'
     self.shard_size = shard_size
@@ -106,6 +106,7 @@ class Dataset():
     self.idx_bos = vocs[0].idx_bos
     self.idx_eos = vocs[0].idx_eos
     self.Idxs = []
+    self.shuffle = shuffle
 
     for n in range(len(files)):
       if not os.path.isfile(files[n]):
@@ -170,8 +171,9 @@ class Dataset():
     n_lines = len(self.Idxs[0])
     ### randomize all data ###
     idxs_pos = [i for i in range(n_lines)]
-    np.random.shuffle(idxs_pos)
-    logging.debug('Shuffled Dataset ({} examples)'.format(n_lines))
+    if self.shuffle:
+      np.random.shuffle(idxs_pos)
+      logging.debug('Shuffled Dataset ({} examples)'.format(n_lines))
     ### split dataset in shards ###
     self.shard_size = self.shard_size or len(self.Idxs[0])
     shards = [idxs_pos[i:i+self.shard_size] for i in range(0, n_lines, self.shard_size)]
@@ -196,9 +198,10 @@ class Dataset():
       ####################
       ### yield batchs ###
       ####################
-      idx_batchs = [i for i in range(len(batchs))]
-      np.random.shuffle(idx_batchs)
-      logging.debug('Shuffled {} batchs'.format(len(idx_batchs)))
+      if self.shuffle:
+        idx_batchs = [i for i in range(len(batchs))]
+        np.random.shuffle(idx_batchs)
+        logging.debug('Shuffled {} batchs'.format(len(idx_batchs)))
       for i in idx_batchs:
         batch_pos = batchs[i]
         batch_idx = [] #idxs_all[0] => source batch, idxs_all[1] => target batch, ...
