@@ -4,7 +4,7 @@
 dnet=$PWD/model_checkpoint
 josep=/nfs/RESEARCH/crego/projects/PrimingNMT-2/
 data=$josep/data
-tokenizer=tools/tokenizer.py
+tokenizer=../tools/tokenizer.py
 fref=$data/clean.Europarl.en-fr.fr.tst
 
 ref | python3 $tokenizer -tok_config $data/BPE_config -detok > ref_detok
