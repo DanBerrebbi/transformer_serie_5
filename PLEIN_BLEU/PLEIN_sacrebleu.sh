@@ -7,6 +7,5 @@ data=$josep/data
 tokenizer=../tools/tokenizer.py
 fref=$data/clean.Europarl.en-fr.fr.tst
 
-$PWD/ref | python3 $tokenizer -tok_config $data/BPE_config -detok > ref_detok
 
-#sort -g /ref | cut -f 2 | python3 $tokenizer -tok_config $data/BPE_config -detok | sacrebleu --force $ref_detok > Europarl_plein.bleu
+sort -g pred.tst | cut -f 2 | python3 $tokenizer -tok_config $data/BPE_config -detok | sacrebleu --force ref.tst > Europarl_plein.bleu
