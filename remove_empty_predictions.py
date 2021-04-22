@@ -4,7 +4,7 @@ with open('/nfs/RESEARCH/crego/projects/PrimingNMT-2/stovec/clean.Europarl.en-fr
     lines_sim = f.readlines()
     f.close()
 
-with open('model_serie/Europarl.out_k5_alpha0.7') as f:
+with open('PLEIN_BLEU/Europarl.out_k5_alpha0.7.sorted') as f:
     lines_pred = f.readlines()
     f.close()
 
@@ -23,6 +23,7 @@ for i, line in enumerate(lines_sim):
 with open('PLEIN_BLEU/ref.tst', 'w') as f:
     for line in ref:
         f.write(line)
+
 
 with open('PLEIN_BLEU/pred.tst', 'w') as f:
     for line in pred:
