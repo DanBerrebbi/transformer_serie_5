@@ -21,6 +21,6 @@ dnet=$PWD/model_serie
 echo setup ok
 echo debut du training
 
-CUDA_VISIBLE_DEVICES=0 python3 $train -dnet $dnet -src_train data_corpus/trn_src  -sim_train data_corpus/trn_sim  -pre_train data_corpus/trn_pre  -tgt_train data_corpus/trn_tgt  -src_valid data_corpus/val_src  -sim_valid data_corpus/val_sim  -pre_valid data_corpus/val_pre  -tgt_valid data_corpus/val_tgt -max_steps 300000 -loss KLDiv -cuda -log_file $dnet/log &
+CUDA_VISIBLE_DEVICES=0 python3 $train -dnet $dnet -src_train data_corpus/trn_src  -sim_train data_corpus/trn_sim  -pre_train data_corpus/trn_pre  -tgt_train data_corpus/trn_tgt  -src_valid data_corpus/val_src  -sim_valid data_corpus/val_sim  -pre_valid data_corpus/val_pre  -tgt_valid data_corpus/val_tgt -max_steps 750000 -loss KLDiv -cuda -log_file $dnet/log &
 
 echo fin du training
