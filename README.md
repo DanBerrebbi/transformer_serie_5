@@ -1,16 +1,9 @@
-## Architecture en série
+## Architecture en série 2 
 
-Les codes modifiés par rapport à la version de Josep sont : 
+src = f(sim)
 
+pre = g(sim)
 
-/transformer/Model.py 
-
-/transformer/Learning.py 
-
-/transformer/Dataset.py (j'ai juste modifié deux assert qui ne marchait pas pour les token "sep" et "msk"
+tgt = h(pre, src)
 
 
-minmt-train.py 
-
-
-![alt text](https://github.com/DanBerrebbi/transformer_serie/blob/main/schema_serie.jpg)
