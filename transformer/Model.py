@@ -423,19 +423,20 @@ class Decoder(torch.nn.Module):
         # ADD
         tmp = tmp2 + tgt
 
-        # NORM
-        tmp1 = self.norm_att_enc_pre(tmp)
-        ################################# CROSS ATTN 1  #####################################################
-        # ATTN over src words : q are words from the previous layer, k, v are src words
-        tmp3 = self.multihead_attn_enc_pre(q=tmp1, k=z_pre, v=z_pre, msk=msk_pre)  # la query reste tmp1 car tmp1 est la variable en sortie du précédent layer
-        # ADD
-        tmp = tmp3 + tmp
 
         # NORM
         tmp1 = self.norm_att_enc_src(tmp)
         ################################# CROSS ATTN 2 #####################################################
         # ATTN over src words : q are words from the previous layer, k, v are src words
         tmp3 = self.multihead_attn_enc_src(q=tmp1, k=z_src, v=z_src, msk=msk_src)  # la query reste tmp1 car tmp1 est la variable en sortie du précédent layer
+        # ADD
+        tmp = tmp3 + tmp
+
+        # NORM
+        tmp1 = self.norm_att_enc_pre(tmp)
+        ################################# CROSS ATTN 1  #####################################################
+        # ATTN over src words : q are words from the previous layer, k, v are src words
+        tmp3 = self.multihead_attn_enc_pre(q=tmp1, k=z_pre, v=z_pre, msk=msk_pre)  # la query reste tmp1 car tmp1 est la variable en sortie du précédent layer
         # ADD
         tmp = tmp3 + tmp
 
