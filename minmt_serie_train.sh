@@ -17,7 +17,7 @@ dir=$josep/minmt_base
 dnet=$PWD/model_serie
 
 
-#python3 $setup -dnet $dnet -src_voc $dir/enfr.BPE.32k.voc -tgt_voc $dir/enfr.BPE.32k.voc
+python3 $setup -dnet $dnet -src_voc $dir/enfr.BPE.32k.voc -tgt_voc $dir/enfr.BPE.32k.voc
 echo setup ok
 echo debut du training
 
